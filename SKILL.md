@@ -49,3 +49,7 @@ Systematically review backlog issues to ensure they are properly prioritised, la
 /issue-triage all --project deltek-developer-dashboard
 /issue-triage TEC-85
 ```
+
+---
+
+*TEC Custom Skill — maintained by the Deltek Technical Services Engineering team.*
