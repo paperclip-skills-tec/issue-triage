@@ -25,6 +25,7 @@ Systematically review backlog issues to ensure they are properly prioritised, la
    - **Duplicates** — Search for similar issues by title/description. Flag potential duplicates with links (e.g., "Possible duplicate of [TEC-42](/TEC/issues/TEC-42)").
    - **Dependencies** — Identify issues that block or are blocked by others.
    - **Assignability** — Can this be picked up now, or does it need scoping first?
+   - **Blocked-state linkage** — If an issue is in `blocked` status, verify it has machine-actionable blocker linkage (see policy below).
 3. **Recommend actions** — For each issue, suggest one of:
    - `ready` — Well-scoped, can be assigned immediately.
    - `needs-scoping` — Requires requirements breakdown (invoke `/requirements-scoping`).
@@ -42,6 +43,34 @@ Systematically review backlog issues to ensure they are properly prioritised, la
   - Issues triaged (count and links)
   - Actions taken per issue
   - Issues requiring human decision
+
+## Blocked-State Policy
+
+Before setting an issue to `blocked`, or when triaging an issue already in `blocked` status, machine-actionable linkage is **required**. Free-text "blocked by X" comments without structured linkage break automated unblock wakes and prevent dependent work from resuming.
+
+### Required linkage (one of)
+
+1. **Issue dependency** — set `blockedByIssueIds` (array of Paperclip issue IDs) on the issue:
+   ```json
+   PATCH /api/issues/{issueId}
+   { "blockedByIssueIds": ["<blocking-issue-id>"] }
+   ```
+   When all blocking issues reach `done`, Paperclip automatically fires `issue_blockers_resolved` and wakes the assignee.
+
+2. **External blocker metadata** — post a structured comment with all four fields:
+   - **Blocker**: what is blocking (system, team, third-party dependency)
+   - **Owner**: the named person or team responsible for resolution
+   - **Expected resolution**: absolute date (e.g., `2026-05-15`)
+   - **Unblock condition**: the specific state or action that will clear the block
+
+### Triage actions for non-compliant blocked issues
+
+- If blocked with only free-text: flag as `needs-info` and post a comment requesting the assignee supply `blockedByIssueIds` or add the structured external-blocker metadata.
+- If blocked with no comment at all: escalate in the triage summary under "Issues requiring human decision".
+
+### Reference
+
+See [TEC-1087](/TEC/issues/TEC-1087) for the platform rule that this skill enforces.
 
 ## Example Invocation
 
